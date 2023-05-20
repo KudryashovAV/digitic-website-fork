@@ -22,46 +22,7 @@ import SingleProduct from "./pages/SingleProduct";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 
-
-import { getStorefrontApiUrl } from './services/shopify-client.js';
-
-const GRAPHQL_QUERY = `
-  {
-  products(first: 10) {
-    edges {
-      node {
-        productType
-        title
-      }
-    }
-  }
-}
-`
-
-export async function getServerSideProps() {
-  const response = await fetch(getStorefrontApiUrl(), {
-    body: JSON.stringify({
-      // A Storefront API query
-      query: GRAPHQL_QUERY,
-    }),
-    // When possible, add the 'buyerIp' property.
-    headers: { "X-Shopify-Storefront-Access-Token": "f87500015141de4171fc410191faf6bb",
-               "X-SDK-Variant":"hydrogen-react",
-               "X-SDK-Variant-Source": "react",
-               "X-SDK-Version": "2023-04",
-                "content-type": "application/json"},
-    method: 'POST',
-  });
-
-  const json = await response.json();
-  console.log("json()", json)
-  return json;
-}
-console.log("getServerSideProps()", getServerSideProps().then((data) => console.log("data", data.data.products)))
-
 function App() {
-
-
   return (
     <>
       <BrowserRouter>

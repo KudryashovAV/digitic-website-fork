@@ -8,9 +8,9 @@ import watch from "../images/watch.jpg";
 import watch2 from "../images/watch-1.avif";
 import addcart from "../images/add-cart.svg";
 import view from "../images/view.svg";
+
 const ProductCard = (props) => {
   const { grid } = props;
-  console.log(grid);
   let location = useLocation();
 
   return (

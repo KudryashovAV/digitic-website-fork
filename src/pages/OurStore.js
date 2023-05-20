@@ -1,13 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
-import ReactStars from "react-rating-stars-component";
 import ProductCard from "../components/ProductCard";
 import Color from "../components/Color";
 import Container from "../components/Container";
+import { getServerSideProps } from "../queries/fetchProducts"
+import RandomProduct from "../components/RandomProduct";
 
 const OurStore = () => {
   const [grid, setGrid] = useState(4);
+  const [randomProducts, setRandomProducts] = useState([]);
+
+  useEffect(() => {
+    getServerSideProps().then((data) => setRandomProducts(data.data?.products.nodes.slice(-2)))
+  }, [grid]);
+
   return (
     <>
       <Meta title={"Our Store"} />
@@ -125,55 +132,16 @@ const OurStore = () => {
                 </div>
               </div>
             </div>
-            <div className="filter-card mb-3">
+            { randomProducts.length > 0 && (<div className="filter-card mb-3">
               <h3 className="filter-title">Random Product</h3>
               <div>
-                <div className="random-products mb-3 d-flex">
-                  <div className="w-50">
-                    <img
-                      src="images/watch.jpg"
-                      className="img-fluid"
-                      alt="watch"
-                    />
-                  </div>
-                  <div className="w-50">
-                    <h5>
-                      Kids headphones bulk 10 pack multi colored for students
-                    </h5>
-                    <ReactStars
-                      count={5}
-                      size={24}
-                      value={4}
-                      edit={false}
-                      activeColor="#ffd700"
-                    />
-                    <b>$ 300</b>
-                  </div>
-                </div>
-                <div className="random-products d-flex">
-                  <div className="w-50">
-                    <img
-                      src="images/watch.jpg"
-                      className="img-fluid"
-                      alt="watch"
-                    />
-                  </div>
-                  <div className="w-50">
-                    <h5>
-                      Kids headphones bulk 10 pack multi colored for students
-                    </h5>
-                    <ReactStars
-                      count={5}
-                      size={24}
-                      value={4}
-                      edit={false}
-                      activeColor="#ffd700"
-                    />
-                    <b>$ 300</b>
-                  </div>
-                </div>
+                {
+                  randomProducts.map((node) =>
+                    <RandomProduct key={node.id} product={node} />
+                  )
+                }
               </div>
-            </div>
+            </div>)}
           </div>
           <div className="col-9">
             <div className="filter-sort-grid mb-4">
@@ -207,7 +175,7 @@ const OurStore = () => {
                       onClick={() => {
                         setGrid(3);
                       }}
-                      src="images/gr4.svg"
+                      src="/images/gr4.svg"
                       className="d-block img-fluid"
                       alt="grid"
                     />
@@ -215,7 +183,7 @@ const OurStore = () => {
                       onClick={() => {
                         setGrid(4);
                       }}
-                      src="images/gr3.svg"
+                      src="/images/gr3.svg"
                       className="d-block img-fluid"
                       alt="grid"
                     />
@@ -223,7 +191,7 @@ const OurStore = () => {
                       onClick={() => {
                         setGrid(6);
                       }}
-                      src="images/gr2.svg"
+                      src="/images/gr2.svg"
                       className="d-block img-fluid"
                       alt="grid"
                     />
@@ -232,7 +200,7 @@ const OurStore = () => {
                       onClick={() => {
                         setGrid(12);
                       }}
-                      src="images/gr.svg"
+                      src="/images/gr.svg"
                       className="d-block img-fluid"
                       alt="grid"
                     />
