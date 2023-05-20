@@ -4,15 +4,34 @@ import Meta from "../components/Meta";
 import ProductCard from "../components/ProductCard";
 import Color from "../components/Color";
 import Container from "../components/Container";
-import { getServerSideProps } from "../queries/fetchProducts"
+import { useQuery } from "@apollo/client";
 import RandomProduct from "../components/RandomProduct";
+import { getServerSideProps } from "../services/shopifyRequester"
+import FETCH_PRODUCTS_QUERY from "../queries/fetchProducts"
+import FETCH_PRODUCT_TAGS_QUERY from "../queries/fetchProductTags";
 
 const OurStore = () => {
   const [grid, setGrid] = useState(4);
   const [randomProducts, setRandomProducts] = useState([]);
 
+  const { data:productTags } = useQuery(FETCH_PRODUCT_TAGS_QUERY, {
+    variables: {
+      count: 250
+    },
+    context: {
+      headers: {
+        "X-Shopify-Storefront-Access-Token": "f87500015141de4171fc410191faf6bb",
+        "X-SDK-Variant":"hydrogen-react",
+        "X-SDK-Variant-Source": "react",
+        "X-SDK-Version": "2023-04",
+        "content-type": "application/json"
+      }
+    }
+  });
+
+
   useEffect(() => {
-    getServerSideProps().then((data) => setRandomProducts(data.data?.products.nodes.slice(-2)))
+    getServerSideProps(FETCH_PRODUCTS_QUERY).then((data) => setRandomProducts(data.data?.products.nodes.slice(-2)))
   }, [grid]);
 
   return (
@@ -117,18 +136,14 @@ const OurStore = () => {
               <h3 className="filter-title">Product Tags</h3>
               <div>
                 <div className="product-tags d-flex flex-wrap align-items-center gap-10">
-                  <span className="badge bg-light text-secondary rounded-3 py-2 px-3">
-                    Headphone
-                  </span>
-                  <span className="badge bg-light text-secondary rounded-3 py-2 px-3">
-                    Laptop
-                  </span>
-                  <span className="badge bg-light text-secondary rounded-3 py-2 px-3">
-                    Mobile
-                  </span>
-                  <span className="badge bg-light text-secondary rounded-3 py-2 px-3">
-                    Wire
-                  </span>
+                  {
+                    productTags && productTags.productTags.edges.map((tag) =>
+                      <span className="badge bg-light text-secondary rounded-3 py-2 px-3" key={tag.node}>
+                        {tag.node}
+                      </span>
+                    )
+                  }
+
                 </div>
               </div>
             </div>
