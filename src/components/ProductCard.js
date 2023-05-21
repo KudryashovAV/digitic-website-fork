@@ -9,15 +9,14 @@ import watch2 from "../images/watch-1.avif";
 import addcart from "../images/add-cart.svg";
 import view from "../images/view.svg";
 
-const ProductCard = (props) => {
-  const { grid } = props;
+const ProductCard = ({ grid, product }) => {
   let location = useLocation();
 
   return (
     <>
       <div
         className={` ${
-          location.pathname == "/product" ? `gr-${grid}` : "col-3"
+          location.pathname == "/products" ? `gr-${grid}` : "col-3"
         } `}
       >
         <Link
@@ -36,13 +35,15 @@ const ProductCard = (props) => {
             </button>
           </div>
           <div className="product-image">
-            <img src={watch} className="img-fluid" alt="product image" />
+            <img src={product?.images.nodes[0]?.src} className="img-fluid" alt="product image" />
             <img src={watch2} className="img-fluid" alt="product image" />
           </div>
           <div className="product-details">
-            <h6 className="brand">Havels</h6>
+            <h6 className="brand">
+              {product?.vendor}
+            </h6>
             <h5 className="product-title">
-              Kids headphones bulk 10 pack multi colored for students
+              {product?.title}
             </h5>
             <ReactStars
               count={5}
@@ -52,12 +53,9 @@ const ProductCard = (props) => {
               activeColor="#ffd700"
             />
             <p className={`description ${grid === 12 ? "d-block" : "d-none"}`}>
-              At vero eos et accusamus et iusto odio dignissimos ducimus qui
-              blanditiis praesentium voluptatum deleniti atque corrupti quos
-              dolores et quas molestias excepturi sint occaecati cupiditate non
-              provident, similique sunt...
+              {product?.description}
             </p>
-            <p className="price">$100.00</p>
+            <p className="price">{product?.priceRange.maxVariantPrice.currencyCode === 'USD' ? '$' : '€'} {product?.priceRange.maxVariantPrice.amount}</p>
           </div>
           <div className="action-bar position-absolute">
             <div className="d-flex flex-column gap-15">

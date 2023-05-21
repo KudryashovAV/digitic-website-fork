@@ -4,35 +4,63 @@ import Meta from "../components/Meta";
 import ProductCard from "../components/ProductCard";
 import Color from "../components/Color";
 import Container from "../components/Container";
-import { useQuery } from "@apollo/client";
+import { useQuery, useLazyQuery } from "@apollo/client";
 import RandomProduct from "../components/RandomProduct";
-import { getServerSideProps } from "../services/shopifyRequester"
+
+import shopifyHeaders from '../services/shopifyClient.js';
 import FETCH_PRODUCTS_QUERY from "../queries/fetchProducts"
+import FETCH_RANDOM_PRODUCTS_QUERY from "../queries/fetchRandomProducts"
 import FETCH_PRODUCT_TAGS_QUERY from "../queries/fetchProductTags";
+import FETCH_PAGINATED_PRODUCTS_QUERY from "../queries/fetchPaginatedProducts";
 
 const OurStore = () => {
   const [grid, setGrid] = useState(4);
-  const [randomProducts, setRandomProducts] = useState([]);
+  const [mainProducts, setMainProducts] = useState([]);
+  const [paginatedInfo, setPaginatedInfo] = useState({ hasNextPage: false, hasPreviousPage: false });
 
   const { data:productTags } = useQuery(FETCH_PRODUCT_TAGS_QUERY, {
     variables: {
       count: 250
     },
     context: {
-      headers: {
-        "X-Shopify-Storefront-Access-Token": "f87500015141de4171fc410191faf6bb",
-        "X-SDK-Variant":"hydrogen-react",
-        "X-SDK-Variant-Source": "react",
-        "X-SDK-Version": "2023-04",
-        "content-type": "application/json"
-      }
+      headers: shopifyHeaders
     }
   });
 
+  const { data:randomProductsData } = useQuery(FETCH_RANDOM_PRODUCTS_QUERY, {
+    variables: {
+      count: 5
+    },
+    context: {
+      headers: shopifyHeaders
+    }
+  });
 
-  useEffect(() => {
-    getServerSideProps(FETCH_PRODUCTS_QUERY).then((data) => setRandomProducts(data.data?.products.nodes.slice(-2)))
-  }, [grid]);
+  const { data:productsData } = useQuery(FETCH_PRODUCTS_QUERY, {
+    variables: {
+      count: 12
+    },
+    context: {
+      headers: shopifyHeaders
+    }
+  });
+
+  const [fetchNextProducts, { data:nxtProductsData }] = useLazyQuery(FETCH_PAGINATED_PRODUCTS_QUERY);
+
+  useEffect(() =>{
+    if (productsData) {
+      setMainProducts(productsData.products.edges)
+      setPaginatedInfo(productsData.products.pageInfo)
+    }
+  }, [productsData])
+
+  useEffect(() =>{
+    if (nxtProductsData) {
+      setMainProducts(nxtProductsData.products.edges)
+      setPaginatedInfo(nxtProductsData.products.pageInfo)
+    }
+  }, [nxtProductsData])
+
 
   return (
     <>
@@ -147,11 +175,11 @@ const OurStore = () => {
                 </div>
               </div>
             </div>
-            { randomProducts.length > 0 && (<div className="filter-card mb-3">
+            { randomProductsData && (<div className="filter-card mb-3">
               <h3 className="filter-title">Random Product</h3>
               <div>
                 {
-                  randomProducts.map((node) =>
+                  randomProductsData.products.nodes.slice(-2).map((node) =>
                     <RandomProduct key={node.id} product={node} />
                   )
                 }
@@ -184,7 +212,7 @@ const OurStore = () => {
                   </select>
                 </div>
                 <div className="d-flex align-items-center gap-10">
-                  <p className="totalproducts mb-0">21 Products</p>
+                  <p className="totalproducts mb-0">12 Products</p>
                   <div className="d-flex gap-10 align-items-center grid">
                     <img
                       onClick={() => {
@@ -225,8 +253,35 @@ const OurStore = () => {
             </div>
             <div className="products-list pb-5">
               <div className="d-flex gap-10 flex-wrap">
-                <ProductCard grid={grid} />
+                { mainProducts.map((product) =>
+                  <ProductCard grid={grid} key={product.node.id} product={product.node} />
+                  )
+                }
               </div>
+              <button
+                disabled={!paginatedInfo.hasNextPage}
+                onClick={() => {
+                console.log("Next");
+                if (mainProducts) {
+                  fetchNextProducts({
+                    variables: {
+                      count: 12,
+                      cursor: mainProducts.slice(-1)[0].cursor
+                    },
+                    context: {
+                      headers: shopifyHeaders
+                    }
+                  })
+                }
+
+              }}>
+                Next
+              </button>
+              <button
+                disabled={!paginatedInfo.hasPreviousPage}
+              >
+                Previous
+              </button>
             </div>
           </div>
         </div>

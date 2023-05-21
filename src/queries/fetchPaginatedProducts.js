@@ -1,9 +1,10 @@
 import {gql} from "@apollo/client";
 
-const FETCH_PRODUCTS_QUERY = gql`
-  query getProducts($count: Int!) {
+const FETCH_PAGINATED_PRODUCTS_QUERY = gql`
+  query getProducts($count: Int!, $cursor: String!) {
   products(
     first: $count
+    after: $cursor
   ) {
     edges {
       cursor
@@ -11,15 +12,13 @@ const FETCH_PRODUCTS_QUERY = gql`
         id
         tags
         title
-        vendor
-        description
         priceRange {
           maxVariantPrice {
             amount
             currencyCode
           }
         }
-        images(first: 1) {
+        images(first: 10) {
           nodes {
             src
             altText
@@ -35,4 +34,4 @@ const FETCH_PRODUCTS_QUERY = gql`
 }
 `
 
-export default FETCH_PRODUCTS_QUERY;
+export default FETCH_PAGINATED_PRODUCTS_QUERY;
