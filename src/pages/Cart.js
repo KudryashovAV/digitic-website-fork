@@ -1,12 +1,95 @@
-import React from "react";
+import React, {useEffect} from "react";
 import BreadCrumb from "../components/BreadCrumb";
 import Meta from "../components/Meta";
 import watch from "../images/watch.jpg";
 import { AiFillDelete } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Container from "../components/Container";
+import { gql, useMutation } from "@apollo/client";
+import shopifyHeaders from "../services/shopifyClient";
+import {CartCheckoutButton} from '@shopify/hydrogen-react';
+
+
+const createCheckout = gql`
+  mutation MyMutation1 {
+   
+  cartCreate(input: {lines: {merchandiseId: "gid://shopify/ProductVariant/45255575306558",quantity:1}, buyerIdentity: {email: "test@test.com"}}) {
+    cart {
+      id
+      checkoutUrl
+      buyerIdentity {
+        customer {
+          email
+        }
+      }
+    }
+  }
+
+}
+`
+
+
+
+
+
+
 
 const Cart = () => {
+  const [checkoutOrder, { data:checkoutData }] = useMutation(createCheckout);
+
+  console.log('checkoutData', checkoutData?.cartCreate.cart.checkoutUrl)
+
+  useEffect(() => {
+    if (checkoutData) {
+      window.location.href = checkoutData.cartCreate.cart.checkoutUrl
+    }
+  }, [checkoutData])
+
+
+
+  const input = {
+    "input": {
+    "allowPartialAddresses": true,
+      "buyerIdentity": {
+      "countryCode": ""
+    },
+    "customAttributes": [
+      {
+        "key": "",
+        "value": ""
+      }
+    ],
+      "email": "",
+      "lineItems": [
+      {
+        "customAttributes": [
+          {
+            "key": "",
+            "value": ""
+          }
+        ],
+        "quantity": 1,
+        "variantId": ""
+      }
+    ],
+      "note": "",
+      "presentmentCurrencyCode": "",
+      "shippingAddress": {
+      "address1": "",
+        "address2": "",
+        "city": "",
+        "company": "",
+        "country": "",
+        "firstName": "",
+        "lastName": "",
+        "phone": "",
+        "province": "",
+        "zip": ""
+    }
+  },
+    "queueToken": ""
+  }
+
   return (
     <>
       <Meta title={"Cart"} />
@@ -62,9 +145,12 @@ const Cart = () => {
               <div className="d-flex flex-column align-items-end">
                 <h4>SubTotal: $ 1000</h4>
                 <p>Taxes and shipping calculated at checkout</p>
-                <Link to="/checkout" className="button">
+                <button
+                  onClick={() => checkoutOrder({ context: { headers: shopifyHeaders } })}
+                  className="button">
                   Checkout
-                </Link>
+                </button>
+
               </div>
             </div>
           </div>
