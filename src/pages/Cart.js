@@ -46,50 +46,6 @@ const Cart = () => {
   }, [checkoutData])
 
 
-
-  const input = {
-    "input": {
-    "allowPartialAddresses": true,
-      "buyerIdentity": {
-      "countryCode": ""
-    },
-    "customAttributes": [
-      {
-        "key": "",
-        "value": ""
-      }
-    ],
-      "email": "",
-      "lineItems": [
-      {
-        "customAttributes": [
-          {
-            "key": "",
-            "value": ""
-          }
-        ],
-        "quantity": 1,
-        "variantId": ""
-      }
-    ],
-      "note": "",
-      "presentmentCurrencyCode": "",
-      "shippingAddress": {
-      "address1": "",
-        "address2": "",
-        "city": "",
-        "company": "",
-        "country": "",
-        "firstName": "",
-        "lastName": "",
-        "phone": "",
-        "province": "",
-        "zip": ""
-    }
-  },
-    "queueToken": ""
-  }
-
   return (
     <>
       <Meta title={"Cart"} />
