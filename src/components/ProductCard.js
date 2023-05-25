@@ -20,7 +20,7 @@ const ProductCard = ({ grid, product }) => {
         } `}
       >
         <Link
-          to="/product/:id"
+          to={"/products/" + product?.title}
           className="product-card position-relative"
         >
           <div className="wishlist-icon position-absolute">
